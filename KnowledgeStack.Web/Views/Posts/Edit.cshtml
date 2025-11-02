@@ -1,0 +1,88 @@
+@model KnowledgeStack.Web.Models.Post
+@{
+    ViewData["Title"] = "编辑文章";
+}
+<div class="container py-4" style="max-width:900px;">
+    <div class="card shadow">
+        <div class="card-header bg-warning">
+            <h4 class="mb-0"><i class="bi bi-pencil"></i> 编辑文章</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">标题 *</label>
+                    <input class="form-control form-control-lg" name="title" value="@Model.Title" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">内容 (支持 Markdown) *</label>
+                    <div class="mb-2">
+                        <label class="btn btn-sm btn-outline-secondary" for="imageUploadEdit">
+                            <i class="bi bi-image"></i> 上传图片
+                        </label>
+                        <input type="file" id="imageUploadEdit" accept="image/*" style="display:none;" />
+                        <small class="text-muted ms-2" id="uploadStatusEdit"></small>
+                    </div>
+                    <textarea id="contentAreaEdit" name="content" rows="15" class="form-control font-monospace">@Model.Content</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">标签</label>
+                    <div class="border rounded p-3">
+                        @{
+                            var selected = Model.PostTags.Select(x => x.TagId).ToHashSet();
+                        }
+                        @foreach (var t in (IEnumerable<KnowledgeStack.Web.Models.Tag>)ViewBag.AllTags)
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="tags" value="@t.Id" id="edittag@(t.Id)" @(selected.Contains(t.Id) ? "checked" : null) />
+                                <label class="form-check-label" for="edittag@(t.Id)">@t.Name</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary px-4" type="submit">
+                        <i class="bi bi-save"></i> 保存修改
+                    </button>
+                    <a class="btn btn-outline-secondary" asp-action="Details" asp-route-id="@Model.Id">
+                        <i class="bi bi-x-circle"></i> 取消
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.getElementById('imageUploadEdit')?.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const status = document.getElementById('uploadStatusEdit');
+    status.textContent = '上传中...';
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const res = await fetch('/Upload/Image', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.url) {
+            const textarea = document.getElementById('contentAreaEdit');
+            const markdown = `![图片](${data.url})`;
+            const pos = textarea.selectionStart;
+            textarea.value = textarea.value.substring(0, pos) + markdown + textarea.value.substring(pos);
+            status.textContent = '✓ 上传成功';
+            setTimeout(() => status.textContent = '', 3000);
+        } else {
+            status.textContent = '✗ ' + (data.error || '上传失败');
+        }
+    } catch(err) {
+        status.textContent = '✗ 上传失败';
+    }
+});
+</script>
+}
+
+
+
+
+
+

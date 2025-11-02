@@ -1,0 +1,123 @@
+@model IEnumerable<KnowledgeStack.Web.Models.Post>
+@{
+    ViewData["Title"] = "文章列表";
+    var total = (int)ViewBag.Total;
+    var page = (int)ViewBag.Page;
+    var pageSize = (int)ViewBag.PageSize;
+    var keyword = ViewBag.Keyword as string;
+    int totalPages = (int)Math.Ceiling(total / (double)pageSize);
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="m-0"><i class="bi bi-file-text"></i> 文章列表</h2>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a class="btn btn-primary" asp-controller="Posts" asp-action="Create">
+                <i class="bi bi-plus-circle"></i> 新建文章
+            </a>
+        }
+    </div>
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-2" method="get">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input class="form-control" name="keyword" value="@keyword" placeholder="搜索标题或内容" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" name="tag">
+                        <option value="">🏷️ 全部标签</option>
+                        @foreach (var t in (IEnumerable<KnowledgeStack.Web.Models.Tag>)ViewBag.Tags)
+                        {
+                            <option value="@t.Id">@t.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-secondary w-100" type="submit">
+                        <i class="bi bi-funnel"></i> 筛选
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row g-3">
+            @foreach (var p in Model)
+            {
+                <div class="col-12">
+                    <div class="card shadow-sm h-100 hover-shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a class="text-decoration-none" asp-action="Details" asp-route-id="@p.Id">@p.Title</a>
+                            </h5>
+                            <p class="card-text text-muted small mb-2">
+                                @{
+                                    var preview = p.Content.Length > 100 ? p.Content.Substring(0, 100) + "..." : p.Content;
+                                }
+                                @preview
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="bi bi-person"></i> @p.User!.Username
+                                    <span class="mx-2">|</span>
+                                    <i class="bi bi-calendar3"></i> @p.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")
+                                </small>
+                                <div>
+                                    @foreach (var t in p.PostTags.Take(3).Select(pt => pt.Tag))
+                                    {
+                                        <span class="badge bg-secondary me-1">@t!.Name</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <nav class="mt-4" aria-label="分页">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(page==1?"disabled":"")">
+                        <a class="page-link" href="?page=@(page-1)&keyword=@keyword">上一页</a>
+                    </li>
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i==page?"active":"")">
+                            <a class="page-link" href="?page=@i&keyword=@keyword">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(page==totalPages?"disabled":"")">
+                        <a class="page-link" href="?page=@(page+1)&keyword=@keyword">下一页</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <p class="text-muted mt-3">暂无文章</p>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="btn btn-primary" asp-action="Create">写第一篇文章</a>
+            }
+        </div>
+    }
+</div>
+
+<style>
+.hover-shadow { transition: box-shadow 0.3s; }
+.hover-shadow:hover { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; }
+</style>
+
+
+

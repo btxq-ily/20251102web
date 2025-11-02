@@ -1,0 +1,68 @@
+## Visual Studio & .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+
+## NuGet
+*.nupkg
+packages/
+.nuget/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+publish/
+
+## Uploads (user generated content)
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
+
+## Database
+*.mdf
+*.ldf
+*.db
+*.sqlite
+Database/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Sensitive Configuration (重要！)
+appsettings.Production.json
+appsettings.Development.json
+web.config
+*.pfx
+*.cer
+*.key
+**/secrets.json
+
+## Deployment Scripts (包含敏感信息)
+*.ps1
+*.txt
+!QUICK-START.txt
+
+## Documentation (可能包含敏感信息)
+docs/
+*.md
+!README.md
+
+## Screenshots and Images
+screenshot/
+*.jpg
+*.png
+*.gif
+*.webp
+
+## Logs
+logs/
+*.log
+

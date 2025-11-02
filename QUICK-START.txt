@@ -1,0 +1,133 @@
+========================================
+  知识小栈 - 快速参考卡片
+========================================
+
+【桌面快捷方式】已修复乱码问题
+-----------------------------------------
+Deploy-KnowledgeStack-IIS.cmd    一键部署到IIS(公网)
+Start-KnowledgeStack-Dev.cmd     启动开发环境
+Start-SQL2022-FQT777.cmd         启动SQL Server
+Stop-SQL2022-FQT777.cmd          停止SQL Server  
+Open-SSMS-FQT777.cmd             打开SSMS
+
+【三个问题的答案】
+-----------------------------------------
+
+Q1: 桌面CMD乱码？
+A1: 已修复！现在所有脚本都是英文文件名。
+
+Q2: 网站被攻击会影响其他文件吗？
+A2: 已隔离！
+    - IIS应用池使用低权限账号
+    - 仅能访问 C:\inetpub\KnowledgeStack\
+    - 无法访问你的文档、桌面、D盘等
+    - 已运行 security-hardening.ps1 加固
+    
+    额外建议：
+    1. 重要文件备份到移动硬盘
+    2. 使用Cloudflare隐藏IP(见下)
+    3. 演示后关闭端口转发
+
+Q3: 如何用域名而非IP访问？
+A3: 使用Cloudflare(免费)！
+    步骤：
+    1. Freenom.com注册免费域名(.tk)
+    2. Cloudflare.com添加站点
+    3. 配置DNS A记录指向你的公网IP
+    4. 启用Proxy(橙色云朵)隐藏真实IP
+    5. 访问: http://你的域名.tk
+    
+    详见: docs\Cloudflare域名配置指南.md
+
+【立即部署到公网 - 三步走】
+-----------------------------------------
+
+步骤1: 设置SQL密码 (5分钟)
+  - 双击 Open-SSMS-FQT777.cmd
+  - 连接 localhost\FQT777
+  - 打开 Database\01-create-sql-login.sql
+  - 修改第15行密码为强密码
+  - 按F5执行
+  - 重启SQL Server
+
+步骤2: 一键部署 (10分钟)
+  - 双击 Deploy-KnowledgeStack-IIS.cmd
+  - 输入SQL密码
+  - 等待完成
+  - 访问 http://localhost 测试
+
+步骤3: 路由器配置 (10分钟)
+  - 运行: ipconfig (获取内网IP)
+  - 登录路由器 (通常192.168.1.1)
+  - 端口转发: 80 -> 你的内网IP:80
+  - 手机4G访问测试
+
+【域名配置 - Cloudflare隐藏IP】
+-----------------------------------------
+
+1. 注册域名
+   免费: Freenom.com (.tk域名)
+   付费: 阿里云 (60元/年 .com)
+
+2. Cloudflare配置
+   - Cloudflare.com 注册
+   - Add Site -> 输入域名
+   - 添加A记录: @ -> 你的公网IP
+   - Proxy: 启用(橙色云朵)
+   - 复制Cloudflare NS服务器
+
+3. 修改域名NS
+   - 在域名注册商修改NS
+   - 指向Cloudflare NS
+   - 等待生效(2-48小时)
+
+4. IIS绑定域名
+   New-WebBinding -Name KnowledgeStack 
+   -HostHeader "你的域名.tk"
+
+5. 访问测试
+   http://你的域名.tk
+
+【快速命令】
+-----------------------------------------
+
+# 获取公网IP
+powershell "(Invoke-WebRequest https://api.ipify.org).Content"
+
+# 获取内网IP  
+ipconfig | findstr IPv4
+
+# 安全检查
+powershell "cd C:\Users\lenovo\Desktop\web; .\security-check.ps1"
+
+# 安全加固
+powershell "cd C:\Users\lenovo\Desktop\web; .\security-hardening.ps1"
+
+【核心文档位置】
+-----------------------------------------
+C:\Users\lenovo\Desktop\web\文档索引.md
+C:\Users\lenovo\Desktop\web\docs\立即部署-执行手册.md
+C:\Users\lenovo\Desktop\web\docs\Cloudflare域名配置指南.md
+C:\Users\lenovo\Desktop\web\docs\安全隔离与防护方案.md
+
+【当前状态】
+-----------------------------------------
+✅ 所有代码完成
+✅ 15篇技术文档
+✅ 自动化部署脚本
+✅ 安全加固脚本
+✅ 桌面快捷方式(已修复乱码)
+⏳ 待执行: SQL密码设置 + IIS部署 + 域名配置
+
+【演示加分点】
+-----------------------------------------
+1. 域名访问(非IP) ⭐⭐⭐
+2. IP隐藏(Cloudflare) ⭐⭐
+3. 安全隔离展示 ⭐⭐
+4. 自动化部署脚本 ⭐
+5. 环境变量配置 ⭐
+
+========================================
+  准备就绪！执行 Deploy-KnowledgeStack-IIS.cmd 开始部署
+========================================
+
